@@ -1,4 +1,6 @@
 import sys
+import json
+import yaml
 from flask import Flask
 from github import Github
 
@@ -12,15 +14,16 @@ contents = []
 @app.route("/v1/<filename>")
 def readf(filename):
     repo=g.get_user(user).get_repo(rep)
+    fn = filename.split(".")[0]
+
     if filename.endswith('.yml'):
-        content = repo.get_file_contents(filename).content.decode(repo.get_contents(filename).encoding)
+        content = repo.get_file_contents(fn+".yml").content.decode(repo.get_contents(fn+".yml").encoding)
         return content
-    else:
-        return "error.. no yml file found"
     
-    if filename.endswith('.json'):
-        content = repo.get_file_contents(filename).content.decode(repo.get_contents(filename).encoding)
+    elif filename.endswith('.json'):
+        content = json.dumps(yaml.load(repo.get_file_contents(fn+".yml").content.decode(repo.get_contents(fn+".yml").encoding)))
         return content
+        
     else:
         return "error"
 
